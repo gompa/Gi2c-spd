@@ -50,18 +50,20 @@ def crcb(i):
         crc = _update_crc(crc, c)
     return crc
 
-def printcrc(final):
+def printcurrentcrc(final):
     #crc=hex(crcb(final[:117]))
     #print(crc[2:])
     #crcbyte123=int('0x'+crc[4:],16)
     #crcbyte124=int(crc[:4],16)
     #print(hex(crcbyte123))
     #print(hex(crcbyte124))
-    print("original CRC= "+hex(final[124]) + hex(final[123]).strip("0x") )
+    print("Current CRC= "+padhex(final[124]) + padhex(final[123])[2:] )
     #print(hex(final[123]))
 
-
-
+def padhex(hexunpadded):
+    vis = hex(hexunpadded)
+    printr = '0x' + vis[2:].zfill(2)
+    return(printr)
 	
 
 def spdcrc(final):
@@ -85,7 +87,7 @@ def writecas(final,args):
         print(caswant)
         #caswant=map(caswant,int)
         #caswant=list(caswant)
-        print(caswant)
+        #print(caswant)
         
         count=4
         casoffset=4
@@ -106,6 +108,7 @@ def writecas(final,args):
         print("cashigh byte= "+casstring[8:][::-1])
         print("cashigh byte int= "+ str(hex(int("0b"+casstring[8:][::-1],2))))
         print("caslow byte int= "+ str(hex(int("0b"+casstring[:8][::-1],2))))
+        #print(final)
         final[14]=int("0b"+casstring[:8][::-1],2)
         final[15]=int("0b"+casstring[8:][::-1],2)
         # ~ print(final)
@@ -134,31 +137,72 @@ def writecas(final,args):
     #print(bin(11010100))
     #print(bytes.fromhex(bytes(final[:116])))
 
+def readmincasdelay(final):
+    mincasdelay=final[16]*0.1250
+    print("min cas latency= "+str(mincasdelay)+"ns") 
+    print()
 
+
+def readtckmin(final):
+    #print('-------readtckmin-----')
+    tckmin=final[12]
+    tckminoffset=final[34]
+    #print(tckminoffset)
+    print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    if hex(tckmin) == "0x14":
+        print("DDR3-800 clockspeed=400mhz")
+    if hex(tckmin) == "0xf":
+        print("DDR3-1066 clockspeed=533mhz")
+    if hex(tckmin) == "0xc":
+        print("DDR3-1333 clockspeed=667mhz")
+    if hex(tckmin) == "0xa":
+        print("DDR3-1600 clockspeed=800mhz")
+    if hex(tckmin) == "0x9" and hex(tckminoffset) == "0xCA":
+        print("DDR3-1866 clockspeed=933mhz")
+    if hex(tckmin) == "0x8" and hex(tckminoffset) == "0xC2":
+        print("DDR3-2133 clockspeed=1067mhz")    
+    #print("min cycle time tckmin= "+str(final[12])+"ns")
+    #print(hex(final[12]))
+    
 
 def writetckmin(final, args):
+    print("writetckmin----")
     print(args)
-
+    print(final[12])
+    return(final)
 
 def showCASenabled(final):
-    bincaslow=bin(final[14])
-    bincashigh=bin(final[15])
+    # ~ print(bincashigh)
+    bincaslow=format(final[14], '#010b')
     bincashigh=format(final[15], '#010b')
     # ~ print(bincaslow)
-    # ~ print(bincashigh)
+    #print(bincashigh)
     # ~ print(hex(final[14]))
     # ~ print(hex(final[15]))
-    count=4
+    totalenabled=""
+    count=0
+    offset=4
     print("cas latencys enabled:")
     for cl in reversed(bincaslow[2:]):
-        print("cl"+str(count)+"="+cl)
-        
+        #print("cl"+str(count)+"="+cl)
+        if count == 7:
+            totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl+"\n"
+        else:
+            totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl
         count=count+1
     for cl in reversed(bincashigh[2:]):
-        if count != 19:
-            print("cl"+str(count)+"="+cl)
-            count=count+1
-
+        if count != 18:
+            if count == 7:
+                totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl+"\n"
+            else:
+                totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl
+            #print("cl"+str(count)+"="+cl)
+            #totalenabled= totalenabled+ " "+"cl"+str(count)+"="+cl
+        count=count+1
+    #print(count)
+    print(totalenabled)
+    
+    
 def readbus(bus=0,address=0x50):
     data=[]
     offset=0
@@ -253,16 +297,19 @@ def main():
 
     #calculate crc and write to final
     
-    printcrc(final)
+    printcurrentcrc(final)
 	#show info
     showpartnumber(final)
     showCASenabled(final)
 
 
-    print("min cycle time tckmin= "+str(final[12])+"ns")
+    readtckmin(final)
     
     
-    print("min cas latency= "+str(final[16])+"ns") 
+    
+    
+    #print("min cas latency= "+str(final[16])+"ns") 
+    readmincasdelay(final)
     print("RAS# to CAS#  delay time =  "+str(final[18])+"MBT")
     #print(hex(final[18]))
     print("min row precharge delay time trpmin =  "+str(final[20])+"MBT")
@@ -279,5 +326,6 @@ def main():
         print("newcas")
         showCASenabled(final)  
     final=spdcrc(final)
+    printcurrentcrc(final)
     #writebus(0,0x50,final)
 main()
