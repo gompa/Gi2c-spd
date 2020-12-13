@@ -10,14 +10,22 @@ except ImportError:
 import time
 import binascii
 import argparse
-VERBOSE=0
+
+WRITE=0
 POLYNOMIAL = 0x1021
 PRESET = 0
 
-
 def store_true():
+    print('balls')
+
+def store_verbose():
     global VERBOSE
     VERBOSE=1
+
+def store_write():
+    global WRITE
+    WRITE=1
+
 
 def _initial(c):
     crc = 0
@@ -73,13 +81,10 @@ def padhex(hexunpadded):
 
 def spdcrc(final):
     crc=hex(crcb(final[:117]))
-    #print(crc[2:])
+    if VERBOSE:
+        print(crc)
     crcbyte123= int('0x'+crc[4:],16)
     crcbyte124=int(crc[:4],16)
-    #print(hex(crcbyte123))
-    #print(crcbyte124)
-    #print(final[123])
-    #print(final[124])
     final[123]=crcbyte123
     final[124]=crcbyte124
     
@@ -92,10 +97,7 @@ def writecas(final,args):
         if VERBOSE:
             print("writecas")
             print(caswant)
-        #caswant=map(caswant,int)
-        #caswant=list(caswant)
-        #print(caswant)
-        
+
         count=4
         casoffset=4
         casbin=0
@@ -124,29 +126,9 @@ def writecas(final,args):
         final[15]=int("0b"+casstring[8:][::-1],2)
         # ~ print(final)
         return(final)
-        # ~ for cas in args.writecas.replace(','," ").replace("cl","").split( ):
-
-                # ~ #totalcas= totalcas+True<<int(cas)-count
-                # ~ #print(bin(totalcas))
-                # ~ print("incasloop:")
-                # ~ print(cas)
-                # ~ if cas == count:
-                    # ~ print(str(casbin)+str(1))
-                    # ~ casbin=int(str(casbin)+str(1),2)
-                # ~ else:
-                   # ~ casbin=int(str(casbin)+str(0),2)
+     
                    
-                   
-                # ~ count= count+1
-                # ~ #print(cas)
-                # ~ print(bin(casbin))
-                # ~ print(bin(int("0b"+str(casbin),2)))
-        # ~ print(bin(casbin)) 
-    #print(bin(int(hex(int('11010100', 2)),16)))
-    #print(bin(int(hex(int(bincaslow, 2)),16)))
-    
-    #print(bin(11010100))
-    #print(bytes.fromhex(bytes(final[:116])))
+               
 
 def readmincasdelay(final):
     mincasdelay=final[16]*0.1250
@@ -161,8 +143,8 @@ def readtckmin(final):
     #print(tckminoffset)
     if VERBOSE:
         print("----tck raw----")
-        print(hexpad(tckmin))
-        print(hexpad(tckoffset))
+        print(padhex(tckmin))
+        print(padhex(tckminoffset))
 
     if hex(tckmin) == "0x14":
         print("DDR3-800 clockspeed=400mhz")
@@ -237,7 +219,7 @@ def showCASenabled(final):
             totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl
         count=count+1
     for cl in reversed(bincashigh[2:]):
-        if count != 18:
+        if count+offset != 19:
             if count == 7:
                 totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl+"\n"
             else:
@@ -319,6 +301,9 @@ def main():
     '''
     Main program function
     '''
+    global WRITE
+    global VERBOSE
+    
     # Define registers values from datasheet
     parser = argparse.ArgumentParser()
     parser.add_argument("--writetckmin",
@@ -329,16 +314,31 @@ def main():
                         help="set enabled CAS latencys in bytes 14 and 15 These bytes define which CAS Latency (CL) values are supported. The range is from CL = 4 through CL = 18 with one bit per possible CAS Latency. A 1 in a bit position means that CL is supported, a 0 in that bit position means it is not supported. Since CL = 6 is required for all DDR3 speed bins, bit 2 of SPD byte 14 is always 1.")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
+    parser.add_argument("-w", "--write",action="store_true",
+                        help="enable write")
     args = parser.parse_args()
     
     
-    #answer = args.square**2
+    #enable verbose mode
+    #print(args)
     if args.verbose:
-        print("verbose")
+        #print("verbose")
+        #global VERBOSE
         VERBOSE=1
        # print("the square of {} equals {}".format(args.square, answer))
     else:
+        #global VERBOSE
         VERBOSE=0
+
+    #enable write mode
+    if args.write:
+        #print("WRITE")
+        #global WRITE
+        WRITE=1
+       # print("the square of {} equals {}".format(args.square, answer))
+    else:
+        #global WRITE
+        WRITE=0
 
     #read bus, defaults bus=0 adress=0x50
     final=readbus()
@@ -379,5 +379,6 @@ def main():
         showCASenabled(final)  
     final=spdcrc(final)
     printcurrentcrc(final)
-    #writebus(0,0x50,final)
+    if WRITE:
+        writebus(0,0x50,final)
 main()
