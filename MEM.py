@@ -231,13 +231,13 @@ def showCASenabled(final):
     print(totalenabled)
     
     
-def readbus(bus=0,address=0x50):
+def readbus(busaddr=0,address=0x50):
     data=[]
     offset=0
     count=0
     while len(data) < 256:
             #i2caddress = 0x50  # Address of MCP23017 device
-            with SMBus(0) as bus:
+            with SMBus(busaddr) as bus:
                 bus.pec = 1
                 # Read a block of 16 bytes from address 80, offset 0
                 block = bus.read_i2c_block_data(address, offset, 32)
@@ -369,7 +369,7 @@ def main():
     if args.writetckmin:
         final=writetckmin(final, args.writetckmin, args.writetckminoffset)  
         #print("newtckmin")
-        #readtckmin(final)
+        readtckmin(final)
            
     
     
