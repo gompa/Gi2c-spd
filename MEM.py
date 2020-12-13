@@ -86,10 +86,12 @@ def spdcrc(final):
     return(final)
 
 def writecas(final,args):
-        print("writecas")
+        
         caswant=args.replace("cl","").split(" ")
         caswant=[int(x) for x in caswant if x]
-        print(caswant)
+        if VERBOSE:
+            print("writecas")
+            print(caswant)
         #caswant=map(caswant,int)
         #caswant=list(caswant)
         #print(caswant)
@@ -101,6 +103,10 @@ def writecas(final,args):
         casstring=""
         totalcasarray=16 
         while cascount < 16:
+            if cascount == 6:
+                casstring=casstring+"1"
+                cascount=cascount+1
+                continue 
             if cascount+casoffset in caswant:
                 casstring=casstring+"1"
             else:
@@ -145,7 +151,7 @@ def writecas(final,args):
 def readmincasdelay(final):
     mincasdelay=final[16]*0.1250
     print("min cas latency= "+str(mincasdelay)+"ns") 
-    print()
+    #print()
 
 
 def readtckmin(final):
@@ -182,8 +188,9 @@ def readtckmin(final):
     
 
 def writetckmin(final, args , offset=0):
-    print("writetckmin----")
-    print(args)
+    if VERBOSE:        
+        print("writetckmin----")
+        print(args)
     tckminoffset=0
     tckmin=int(args)
     print("wanted speed:")
@@ -206,7 +213,8 @@ def writetckmin(final, args , offset=0):
         print("DDR3-2133 clockspeed=1067mhz")    
         print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
     final[12]=tckmin
-    print(final[12])
+    if VERBOSE:
+        print(final[12])
     return(final)
 
 def showCASenabled(final):
@@ -318,7 +326,7 @@ def main():
     parser.add_argument("--writetckminoffset",
                         help="set min cycle time tckmin  offset byte 34 in ns exaple: --writetckminoffset -54")                        
     parser.add_argument("--writecas",
-                        help="set enabled CAS latencys in byte 14")
+                        help="set enabled CAS latencys in bytes 14 and 15 These bytes define which CAS Latency (CL) values are supported. The range is from CL = 4 through CL = 18 with one bit per possible CAS Latency. A 1 in a bit position means that CL is supported, a 0 in that bit position means it is not supported. Since CL = 6 is required for all DDR3 speed bins, bit 2 of SPD byte 14 is always 1.")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
     args = parser.parse_args()
@@ -355,12 +363,13 @@ def main():
     print("min row precharge delay time trpmin =  "+str(final[20])+"MBT")
 #    print( hex(binascii.crc_hqx(bytes.fromhex(" ".join(final[:116]))),0))
     #print(final)
-    if "write" in args:
+    if "write" in str(args):
         print("-----after edit -----")
     
     if args.writetckmin:
         final=writetckmin(final, args.writetckmin, args.writetckminoffset)  
-        print("newcas")
+        #print("newtckmin")
+        #readtckmin(final)
            
     
     
