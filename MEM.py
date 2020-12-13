@@ -4,7 +4,7 @@ try:
     from smbus2 import SMBus
     #print('\nModule was installed')
 except ImportError:
-    print('\nWe need smbus2 to run, pip3 install smbus2')
+    print('\nWe need smbus2 to run\n pip3 install smbus2 as root')
 
 
 import time
@@ -80,29 +80,84 @@ def spdcrc(final):
 
 def writecas(final,args):
         print("writecas")
-        #print(args.writecas)
+        caswant=args.replace("cl","").split(" ")
+        caswant=[int(x) for x in caswant if x]
+        print(caswant)
+        #caswant=map(caswant,int)
+        #caswant=list(caswant)
+        print(caswant)
+        
         count=4
-        totalcas=0
-        for cas in args.writecas.replace(','," ").replace("cl","").split( ):
-                print(cas)
-                totalcas= totalcas+True<<int(cas)-count
-                print(bin(totalcas))
+        casoffset=4
+        casbin=0
+        cascount=0
+        casstring=""
+        totalcasarray=16 
+        while cascount < 16:
+            if cascount+casoffset in caswant:
+                casstring=casstring+"1"
+            else:
+                casstring=casstring+"0"
+            #print(casstring)
+            cascount=cascount+1
+        
+        print("casstirng"+casstring)
+        print("caslow byte= "+casstring[:8][::-1])
+        print("cashigh byte= "+casstring[8:][::-1])
+        print("cashigh byte int= "+ str(hex(int("0b"+casstring[8:][::-1],2))))
+        print("caslow byte int= "+ str(hex(int("0b"+casstring[:8][::-1],2))))
+        final[14]=int("0b"+casstring[:8][::-1],2)
+        final[15]=int("0b"+casstring[8:][::-1],2)
+        # ~ print(final)
+        return(final)
+        # ~ for cas in args.writecas.replace(','," ").replace("cl","").split( ):
+
+                # ~ #totalcas= totalcas+True<<int(cas)-count
+                # ~ #print(bin(totalcas))
+                # ~ print("incasloop:")
+                # ~ print(cas)
+                # ~ if cas == count:
+                    # ~ print(str(casbin)+str(1))
+                    # ~ casbin=int(str(casbin)+str(1),2)
+                # ~ else:
+                   # ~ casbin=int(str(casbin)+str(0),2)
+                   
+                   
+                # ~ count= count+1
+                # ~ #print(cas)
+                # ~ print(bin(casbin))
+                # ~ print(bin(int("0b"+str(casbin),2)))
+        # ~ print(bin(casbin)) 
     #print(bin(int(hex(int('11010100', 2)),16)))
     #print(bin(int(hex(int(bincaslow, 2)),16)))
     
     #print(bin(11010100))
     #print(bytes.fromhex(bytes(final[:116])))
 
+
+
+def writetckmin(final, args):
+    print(args)
+
+
 def showCASenabled(final):
     bincaslow=bin(final[14])
-    #print(bincaslow)
+    bincashigh=bin(final[15])
+    bincashigh=format(final[15], '#010b')
+    # ~ print(bincaslow)
+    # ~ print(bincashigh)
+    # ~ print(hex(final[14]))
+    # ~ print(hex(final[15]))
     count=4
     print("cas latencys enabled:")
     for cl in reversed(bincaslow[2:]):
         print("cl"+str(count)+"="+cl)
         
         count=count+1
-        
+    for cl in reversed(bincashigh[2:]):
+        if count != 19:
+            print("cl"+str(count)+"="+cl)
+            count=count+1
 
 def readbus(bus=0,address=0x50):
     data=[]
@@ -176,11 +231,15 @@ def main():
     '''
     # Define registers values from datasheet
     parser = argparse.ArgumentParser()
+    parser.add_argument("--writetckmin",
+                        help="set min cycle time tckmin  byte 12 in ns exaple: --writetckmin 100ns")
     parser.add_argument("--writecas",
                         help="set enabled CAS latencys in byte 14")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
     args = parser.parse_args()
+    
+    
     #answer = args.square**2
     if args.verbose:
         print("verbose")
@@ -198,16 +257,27 @@ def main():
 	#show info
     showpartnumber(final)
     showCASenabled(final)
-    if args.writecas:
-        writecas(final, args)
+
 
     print("min cycle time tckmin= "+str(final[12])+"ns")
+    
+    
     print("min cas latency= "+str(final[16])+"ns") 
     print("RAS# to CAS#  delay time =  "+str(final[18])+"MBT")
     #print(hex(final[18]))
     print("min row precharge delay time trpmin =  "+str(final[20])+"MBT")
 #    print( hex(binascii.crc_hqx(bytes.fromhex(" ".join(final[:116]))),0))
     #print(final)
+    if args.writetckmin:
+        final=writetckmin(final, args.writetckmin)  
+        print("newcas")
+           
+    
+    
+    if args.writecas:
+        final=writecas(final, args.writecas)  
+        print("newcas")
+        showCASenabled(final)  
     final=spdcrc(final)
     #writebus(0,0x50,final)
 main()
