@@ -14,6 +14,11 @@ VERBOSE=0
 POLYNOMIAL = 0x1021
 PRESET = 0
 
+
+def store_true():
+    global VERBOSE
+    VERBOSE=1
+
 def _initial(c):
     crc = 0
     c = c << 8
@@ -57,7 +62,7 @@ def printcurrentcrc(final):
     #crcbyte124=int(crc[:4],16)
     #print(hex(crcbyte123))
     #print(hex(crcbyte124))
-    print("Current CRC= "+padhex(final[124]) + padhex(final[123])[2:] )
+    print("Current CRC="+padhex(final[124]) + padhex(final[123])[2:] )
     #print(hex(final[123]))
 
 def padhex(hexunpadded):
@@ -102,12 +107,12 @@ def writecas(final,args):
                 casstring=casstring+"0"
             #print(casstring)
             cascount=cascount+1
-        
-        print("casstirng"+casstring)
-        print("caslow byte= "+casstring[:8][::-1])
-        print("cashigh byte= "+casstring[8:][::-1])
-        print("cashigh byte int= "+ str(hex(int("0b"+casstring[8:][::-1],2))))
-        print("caslow byte int= "+ str(hex(int("0b"+casstring[:8][::-1],2))))
+        if VERBOSE:            
+            print("casstirng"+casstring)
+            print("caslow byte="+casstring[:8][::-1])
+            print("cashigh byte="+casstring[8:][::-1])
+            print("cashigh byte int="+ str(hex(int("0b"+casstring[8:][::-1],2))))
+            print("caslow byte int="+ str(hex(int("0b"+casstring[:8][::-1],2))))
         #print(final)
         final[14]=int("0b"+casstring[:8][::-1],2)
         final[15]=int("0b"+casstring[8:][::-1],2)
@@ -148,26 +153,59 @@ def readtckmin(final):
     tckmin=final[12]
     tckminoffset=final[34]
     #print(tckminoffset)
-    print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    if VERBOSE:
+        print("----tck raw----")
+        print(hexpad(tckmin))
+        print(hexpad(tckoffset))
+
     if hex(tckmin) == "0x14":
         print("DDR3-800 clockspeed=400mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
     if hex(tckmin) == "0xf":
         print("DDR3-1066 clockspeed=533mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
     if hex(tckmin) == "0xc":
         print("DDR3-1333 clockspeed=667mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
     if hex(tckmin) == "0xa":
         print("DDR3-1600 clockspeed=800mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
     if hex(tckmin) == "0x9" and hex(tckminoffset) == "0xCA":
         print("DDR3-1866 clockspeed=933mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
     if hex(tckmin) == "0x8" and hex(tckminoffset) == "0xC2":
         print("DDR3-2133 clockspeed=1067mhz")    
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+
     #print("min cycle time tckmin= "+str(final[12])+"ns")
     #print(hex(final[12]))
     
 
-def writetckmin(final, args):
+def writetckmin(final, args , offset=0):
     print("writetckmin----")
     print(args)
+    tckminoffset=0
+    tckmin=int(args)
+    print("wanted speed:")
+    if hex(tckmin) == "0x14":
+        print("DDR3-800 clockspeed=400mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    if hex(tckmin) == "0xf":
+        print("DDR3-1066 clockspeed=533mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    if hex(tckmin) == "0xc":
+        print("DDR3-1333 clockspeed=667mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    if hex(tckmin) == "0xa":
+        print("DDR3-1600 clockspeed=800mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    if hex(tckmin) == "0x9" and hex(tckminoffset) == "0xCA":
+        print("DDR3-1866 clockspeed=933mhz")
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    if hex(tckmin) == "0x8" and hex(tckminoffset) == "0xC2":
+        print("DDR3-2133 clockspeed=1067mhz")    
+        print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
+    final[12]=tckmin
     print(final[12])
     return(final)
 
@@ -277,6 +315,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--writetckmin",
                         help="set min cycle time tckmin  byte 12 in ns exaple: --writetckmin 100ns")
+    parser.add_argument("--writetckminoffset",
+                        help="set min cycle time tckmin  offset byte 34 in ns exaple: --writetckminoffset -54")                        
     parser.add_argument("--writecas",
                         help="set enabled CAS latencys in byte 14")
     parser.add_argument("-v", "--verbose", action="store_true",
@@ -315,8 +355,11 @@ def main():
     print("min row precharge delay time trpmin =  "+str(final[20])+"MBT")
 #    print( hex(binascii.crc_hqx(bytes.fromhex(" ".join(final[:116]))),0))
     #print(final)
+    if "write" in args:
+        print("-----after edit -----")
+    
     if args.writetckmin:
-        final=writetckmin(final, args.writetckmin)  
+        final=writetckmin(final, args.writetckmin, args.writetckminoffset)  
         print("newcas")
            
     

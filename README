@@ -1,0 +1,20 @@
+Gi2c 
+
+Gi2c is a basic spd read and write tool written in python3
+it depends on smbus2 
+
+
+
+arguments : 
+
+
+--writetckmin
+set min cycle time tckmin  byte 12 in ns example: --writetckmin 10ns")
+
+
+--writecas
+set enabled CAS latencys in byte 14
+input is cas latency to enable as list of cl* values
+example: python3 MEM.py --writecas cl4 cl5 cl6 cl16
+
+
