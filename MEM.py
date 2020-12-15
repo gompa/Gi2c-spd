@@ -225,7 +225,7 @@ def readbus(busaddr=0,address=0x50):
     offset=0
     count=0
     while len(data) < 256:
-            #i2caddress = 0x50  # Address of MCP23017 device
+            #i2caddress = 0x50  # Address of first spd eeprom device
             with SMBus(busaddr) as bus:
                 bus.pec = 1
                 # Read a block of 16 bytes from address 80, offset 0
@@ -297,6 +297,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--writetckmin",
                         help="set min cycle time tckmin  byte 12 in ns exaple: --writetckmin 100ns")
+    parser.add_argument("--busaddress",
+                        help="set i2c bus addresss")
+    parser.add_argument("--dimmaddress",
+                        help="set dimm addresss( 0x50 0x51 0x52 0x53 0x54 0x55 )")
     parser.add_argument("--writetckminoffset",
                         help="set min cycle time tckmin  offset byte 34 in ns exaple: --writetckminoffset -54")                        
     parser.add_argument("--writecas",
@@ -318,6 +322,21 @@ def main():
     else:
         #global VERBOSE
         VERBOSE=0
+
+    #set i2c bus address
+    #print(args)
+    if args.busaddress:
+        print(args.busaddress)
+        #print("verbose")
+        #global VERBOSE
+        busaddress=args.busaddress
+
+    if args.dimmaddress:
+        print(args.dimmaddress)
+        #print("verbose")
+        #global VERBOSE
+        dimmaddress=args.dimmaddress
+
 
     #enable write mode
     if args.write:
@@ -369,5 +388,5 @@ def main():
     final=spdcrc(final)
     printcurrentcrc(final)
     if WRITE:
-        writebus(0,0x50,final)
+        writebus(busadress,dimmaddress,final)
 main()

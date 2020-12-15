@@ -2,10 +2,11 @@ Gi2c
 
 Gi2c is a basic spd read and write tool written in python3
 it depends on smbus2 
-you need to enabled the i2c-dev module, and disable any other loaded i2c modules that bind to your spd (at24 for example)
+you need to enabled the i2c-dev module, and disable any other loaded i2c modules that bind to your spd's eeprom (at24 for example)
 
 modprobe i2c-dev
 modprobe -r at24
+
 
 
 arguments : 
