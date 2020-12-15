@@ -12,8 +12,31 @@ import binascii
 import argparse
 
 WRITE=0
+READFROMFILE=0
+WRITETOFILE=0
 POLYNOMIAL = 0x1021
 PRESET = 0
+
+
+def writefile(final,filename):
+    with open(filename, 'w') as f:
+        for item in final:
+            f.write(padhex(item)+" ")
+            
+            
+def readfromfile(filename):
+    with open(filename, 'r') as f:
+        data=f.read()
+        data= data.split(" ")
+        data =list(filter(None, data))
+        count=0
+        final=[]
+        for value in data:
+            if value != '':
+                final.append(int(value,16))
+
+        return(final)
+
 
 
 def _initial(c):
@@ -31,12 +54,9 @@ _tab = [ _initial(i) for i in range(256) ]
 
 def _update_crc(crc, c):
     cc = 0xff & c
-
     tmp = (crc >> 8) ^ cc
     crc = (crc << 8) ^ _tab[tmp & 0xff]
     crc = crc & 0xffff
-    #print (crc)
-
     return crc
 
 def crc(str):
@@ -53,14 +73,7 @@ def crcb(i):
     return crc
 
 def printcurrentcrc(final):
-    #crc=hex(crcb(final[:117]))
-    #print(crc[2:])
-    #crcbyte123=int('0x'+crc[4:],16)
-    #crcbyte124=int(crc[:4],16)
-    #print(hex(crcbyte123))
-    #print(hex(crcbyte124))
     print("Current CRC="+padhex(final[124]) + padhex(final[123])[2:] )
-    #print(hex(final[123]))
 
 def padhex(hexunpadded):
     vis = hex(hexunpadded)
@@ -237,17 +250,12 @@ def readbus(busaddr=0,address=0x50):
                 offset=offset+32
                 #print(block)
                 count= count+1
-    #print(data)
-    #3print(hex(data))
     final=[]
     visual=[]
-    #print("-------------------data------------------")
-    #print(data)
     for test in data:
         vis = hex(test)
         printr = '0x' + vis[2:].zfill(2)
         final.append(int(printr,16))
-    #print(count)
     return(final)
 
 
@@ -292,7 +300,8 @@ def main():
     '''
     global WRITE
     global VERBOSE
-    
+    global WRITETOFILE
+    global READFROMFILE
     # Define registers values from datasheet
     parser = argparse.ArgumentParser()
     parser.add_argument("--writetckmin",
@@ -309,51 +318,59 @@ def main():
                         help="increase output verbosity")
     parser.add_argument("-w", "--write",action="store_true",
                         help="enable write")
+    parser.add_argument("--writetofile",
+                        help="write spd to filename")
+    parser.add_argument("--readfromfile",
+                        help="Read spd from filename")                        
     args = parser.parse_args()
     
     
     #enable verbose mode
-    #print(args)
     if args.verbose:
-        #print("verbose")
-        #global VERBOSE
         VERBOSE=1
-       # print("the square of {} equals {}".format(args.square, answer))
     else:
-        #global VERBOSE
         VERBOSE=0
 
     #set i2c bus address
-    #print(args)
     if args.busaddress:
         print(args.busaddress)
-        #print("verbose")
-        #global VERBOSE
         busaddress=args.busaddress
     else:
         busaddress=0
+        
+    # set dimm address
     if args.dimmaddress:
         print(args.dimmaddress)
-        #print("verbose")
-        #global VERBOSE
         dimmaddress=args.dimmaddress
     else:
         dimmaddress=0x50
 
     #enable write mode
     if args.write:
-        #print("WRITE")
-        #global WRITE
         WRITE=1
-       # print("the square of {} equals {}".format(args.square, answer))
     else:
-        #global WRITE
         WRITE=0
+    #enable write to file and define file name    
+    if args.writetofile:
+        WRITETOFILE=1
+        writefilename=args.writetofile
+    else:
+        WRITETOFILE=0
+    #enable read from file and define readfilename
+    if args.readfromfile:
+        READFROMFILE=1
+        readfilename=args.readfromfile
+    else:
+        READFROMFILE=0        
+    
+    #read from file else read from bus
+    if READFROMFILE:
+        final=readfromfile(readfilename)
+    else:
+        #read from bus and store in final
+        final=readbus(busaddress, dimmaddress)
 
-    #read bus, defaults bus=0 adress=0x50
-    final=readbus(busaddress, dimmaddress)
-
-    #calculate crc and write to final
+    #read original crc
     
     printcurrentcrc(final)
 	#show info
@@ -363,14 +380,12 @@ def main():
 
     readtckmin(final)
     
-    
-    
-    
-    #print("min cas latency= "+str(final[16])+"ns") 
     readmincasdelay(final)
-    print("RAS# to CAS#  delay time =  "+str(final[18])+"MBT")
+    
+    
+    #print("RAS# to CAS#  delay time =  "+str(final[18])+"MBT")
     #print(hex(final[18]))
-    print("min row precharge delay time trpmin =  "+str(final[20])+"MBT")
+    #print("min row precharge delay time trpmin =  "+str(final[20])+"MBT")
 #    print( hex(binascii.crc_hqx(bytes.fromhex(" ".join(final[:116]))),0))
     #print(final)
     if "write" in str(args):
@@ -391,4 +406,7 @@ def main():
     printcurrentcrc(final)
     if WRITE:
         writebus(busadress,dimmaddress,final)
+    if WRITETOFILE:
+        
+        writefile(final, writefilename)
 main()

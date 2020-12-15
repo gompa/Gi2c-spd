@@ -42,3 +42,11 @@ example: python3 MEM.py --writecas cl4 cl5 cl6 cl16
 
 --write
 enable global write without this enabled its does a dry-run
+
+
+--writetofile
+write spd to filename
+
+--readfromfile
+Read spd from filename    
+
