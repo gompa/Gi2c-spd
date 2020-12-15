@@ -8,8 +8,8 @@ modprobe i2c-dev
 modprobe -r at24
 
 
-
-find some more info about the ddr3 spd here : https://www.h-bomb.nl/ddr3-spd/
+find some more info about Gi2c here: [H-bomb.nl Gi2c ddr3]()soon
+find some more info about the ddr3 spd here : [H-bomb.nl ddr3-spd](https://www.h-bomb.nl/ddr3-spd/)
 
 
 
