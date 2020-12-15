@@ -2,14 +2,20 @@ Gi2c
 
 Gi2c is a basic spd read and write tool written in python3
 it depends on smbus2 
+you need to enabled the i2c-dev module, and disable any other loaded i2c modules that bind to your spd (at24 for example)
 
+modprobe i2c-dev
+modprobe -r at24
 
 
 arguments : 
 
-
 --writetckmin
 set min cycle time tckmin  byte 12 in ns example: --writetckmin 10ns")
+
+
+--writetckminoffset
+ set min cycle time tckmin  offset byte 34 in ns hex (only used on 1933+2133 example: --writetckminoffset -54")   
 
 
 --writecas
@@ -18,3 +24,5 @@ input is cas latency to enable as list of cl* values
 example: python3 MEM.py --writecas cl4 cl5 cl6 cl16
 
 
+--write
+enable global write without this enabled its does a dry-run

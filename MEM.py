@@ -15,17 +15,6 @@ WRITE=0
 POLYNOMIAL = 0x1021
 PRESET = 0
 
-def store_true():
-    print('balls')
-
-def store_verbose():
-    global VERBOSE
-    VERBOSE=1
-
-def store_write():
-    global WRITE
-    WRITE=1
-
 
 def _initial(c):
     crc = 0
