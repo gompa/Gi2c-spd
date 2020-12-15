@@ -9,6 +9,11 @@ modprobe -r at24
 
 
 
+find some more info about the ddr3 spd here : https://www.h-bomb.nl/ddr3-spd/
+
+
+
+
 arguments : 
 
 --busaddress 
