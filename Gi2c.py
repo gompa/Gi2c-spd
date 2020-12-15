@@ -305,15 +305,15 @@ def main():
     # Define registers values from datasheet
     parser = argparse.ArgumentParser()
     parser.add_argument("--writetckmin",
-                        help="set min cycle time tckmin  byte 12 in ns exaple: --writetckmin 100ns")
+                        help="set min cycle time tckmin  byte 12 in ns example: --writetckmin 100ns")
     parser.add_argument("--busaddress",
-                        help="set i2c bus addresss ( 0 most of the time)")
+                        help="set i2c bus address ( 0 most of the time)")
     parser.add_argument("--dimmaddress",
-                        help="set dimm addresss( 0x50 0x51 0x52 0x53 0x54 0x55 )")
+                        help="set dimm address( 0x50 0x51 0x52 0x53 0x54 0x55 )")
     parser.add_argument("--writetckminoffset",
                         help="set min cycle time tckmin  offset byte 34 in ns exaple: --writetckminoffset -54")                        
     parser.add_argument("--writecas",
-                        help="set enabled CAS latencys in bytes 14 and 15 These bytes define which CAS Latency (CL) values are supported. The range is from CL = 4 through CL = 18 with one bit per possible CAS Latency. A 1 in a bit position means that CL is supported, a 0 in that bit position means it is not supported. Since CL = 6 is required for all DDR3 speed bins, bit 2 of SPD byte 14 is always 1.")
+                        help="set enabled CAS latencies in bytes 14 and 15 These bytes define which CAS Latency (CL) values are supported. The range is from CL = 4 through CL = 18 with one bit per possible CAS Latency. A 1 in a bit position means that CL is supported, a 0 in that bit position means it is not supported. Since CL = 6 is required for all DDR3 speed bins, bit 2 of SPD byte 14 is always 1.")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
     parser.add_argument("-w", "--write",action="store_true",
