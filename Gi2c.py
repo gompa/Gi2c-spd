@@ -394,7 +394,7 @@ def main():
     if args.writetckmin:
         final=writetckmin(final, args.writetckmin, args.writetckminoffset)  
         #print("newtckmin")
-        readtckmin(final)
+        #readtckmin(final)
            
     
     
