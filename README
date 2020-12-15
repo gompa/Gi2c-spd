@@ -11,6 +11,16 @@ modprobe -r at24
 
 arguments : 
 
+--busaddress 
+set i2c bus addresss (0 most of the time)
+
+
+
+--dimmaddress
+set dimm addresss( 0x50 0x51 0x52 0x53 0x54 0x55 )
+
+
+
 --writetckmin
 set min cycle time tckmin  byte 12 in ns example: --writetckmin 10ns")
 

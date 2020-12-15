@@ -298,7 +298,7 @@ def main():
     parser.add_argument("--writetckmin",
                         help="set min cycle time tckmin  byte 12 in ns exaple: --writetckmin 100ns")
     parser.add_argument("--busaddress",
-                        help="set i2c bus addresss")
+                        help="set i2c bus addresss ( 0 most of the time)")
     parser.add_argument("--dimmaddress",
                         help="set dimm addresss( 0x50 0x51 0x52 0x53 0x54 0x55 )")
     parser.add_argument("--writetckminoffset",
@@ -330,13 +330,15 @@ def main():
         #print("verbose")
         #global VERBOSE
         busaddress=args.busaddress
-
+    else:
+        busaddress=0
     if args.dimmaddress:
         print(args.dimmaddress)
         #print("verbose")
         #global VERBOSE
         dimmaddress=args.dimmaddress
-
+    else:
+        dimmaddress=0x50
 
     #enable write mode
     if args.write:
@@ -349,7 +351,7 @@ def main():
         WRITE=0
 
     #read bus, defaults bus=0 adress=0x50
-    final=readbus()
+    final=readbus(busaddress, dimmaddress)
 
     #calculate crc and write to final
     
