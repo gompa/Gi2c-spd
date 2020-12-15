@@ -35,7 +35,7 @@ set min cycle time tckmin  byte 12 in ns example: --writetckmin 10ns")
 
 
 --writecas
-set enabled CAS latencys in byte 14
+set enabled CAS latencys in bytes 14 and 15 These bytes define which CAS Latency (CL) values are supported. The range is from CL = 4 through CL = 18 with one bit per possible CAS Latency. A 1 in a bit position means that CL is supported, a 0 in that bit position means it is not supported. Since CL = 6 is required for all DDR3 speed bins, bit 2 of SPD byte 14 is always 1.
 input is cas latency to enable as list of cl* values
 example: python3 MEM.py --writecas cl4 cl5 cl6 cl16
 
