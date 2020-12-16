@@ -129,12 +129,20 @@ def writecas(final,args):
                
 def readminrascasdelay(final):
     mincasdelay=final[20]*0.1250
-    print("min #ras to #cas delay time= "+str(mincasdelay)+"ns") 
+    print("min #ras to #cas delay time="+str(mincasdelay)+"ns") 
 
+
+def writerastocas(final,rastocas,offset):
+    if offset == None:
+        offset=0 
+    final[20]=int(rastocas)
+    final[36]=int(offset)
+    return(final)
+    
 
 def readmincasdelay(final):
     mincasdelay=final[16]*0.1250
-    print("min cas latency= "+str(mincasdelay)+"ns") 
+    print("min cas latency="+str(mincasdelay)+"ns") 
 
 
 def readtckmin(final):
@@ -166,10 +174,12 @@ def readtckmin(final):
     
 
 def writetckmin(final, args , offset=0):
+    if offset==None:
+        offset=0
     if VERBOSE:        
         print("writetckmin----")
         print(args)
-    tckminoffset=0
+    tckminoffset=int(offset)
     tckmin=int(args)
     print("wanted speed:")
     if hex(tckmin) == "0x14":
@@ -291,6 +301,10 @@ def main():
                         help="set i2c bus address ( 0 most of the time)")
     parser.add_argument("--dimmaddress",
                         help="set dimm address( 0x50 0x51 0x52 0x53 0x54 0x55 )")
+    parser.add_argument("--writeminrastocas",
+                        help="set min ras to cas time byte 20 in ns example: --writeminrastocas 10ns")
+    parser.add_argument("--writeminrastocasoffset",
+                        help="set min ras to cas offset byte 36 in ns exaple: --writeminrastocas -54")  
     parser.add_argument("--writetckmin",
                         help="set min cycle time tckmin byte 12 in ns example: --writetckmin 10ns")
     parser.add_argument("--writetckminoffset",
@@ -379,8 +393,10 @@ def main():
         final=writetckmin(final, args.writetckmin, args.writetckminoffset)  
         #print("newtckmin")
         #readtckmin(final)
-           
-    
+
+    if args.writeminrastocas:
+        final=writerastocas(final, args.writeminrastocas, args.writeminrastocasoffset)  
+               
     
     if args.writecas:
         final=writecas(final, args.writecas)  
