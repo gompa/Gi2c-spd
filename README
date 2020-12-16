@@ -68,7 +68,7 @@ i dont have ddr4 hardware to test it
 
 i bricked my ram/computer what now:
 try your dim in a different computer with a other dimm installed, or try setting memory timings manual on 1 stick and reboot with both sticks
-get solder an arduino to the spd lines and read the spd data 
+get an arduino and solder it to the spd lines and read the spd data 
 if you are all out of options you can try hotplugging your memory after boot to flash the spd (this is all kinds of bad and should only be used as a last resort)
 
 
