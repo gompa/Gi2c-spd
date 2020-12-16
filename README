@@ -25,6 +25,13 @@ set i2c bus address (0 most of the time)
 set dimm address( 0x50 0x51 0x52 0x53 0x54 0x55 )
 
 
+--writeminrastocas
+set min ras to cas time byte 20 in ns example: --writeminrastocas 10ns
+
+
+--writeminrastocasoffset
+help="set min ras to cas offset byte 36 in ns exaple: --writeminrastocas -54")  
+
 
 --writetckmin
 set min cycle time tckmin  byte 12 in ns example: --writetckmin 10ns")
