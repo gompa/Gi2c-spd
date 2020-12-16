@@ -331,14 +331,14 @@ def main():
     #set i2c bus address
     if args.busaddress:
         print(args.busaddress)
-        busaddress=args.busaddress
+        busaddress=int(args.busaddress)
     else:
         busaddress=0
         
     # set dimm address
     if args.dimmaddress:
         print(args.dimmaddress)
-        dimmaddress=args.dimmaddress
+        dimmaddress=int(args.dimmaddress,16)
     else:
         dimmaddress=0x50
 

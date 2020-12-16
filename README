@@ -4,6 +4,8 @@ Gi2c is a basic spd read and write tool written in python3
 it depends on smbus2 
 you need to enabled the i2c-dev module, and disable any other loaded i2c modules that bind to your spd's eeprom (at24 for example)
 
+
+
 modprobe i2c-dev
 modprobe -r at24
 
@@ -57,3 +59,15 @@ write spd to filename
 --readfromfile
 Read spd from filename    
 
+
+
+Faq:
+why does Gi2c not support ddr4:
+i dont have ddr4 hardware to test it
+
+
+
+
+
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
