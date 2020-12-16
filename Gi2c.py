@@ -127,6 +127,10 @@ def writecas(final,args):
      
                    
                
+def readminrascasdelay(final):
+    mincasdelay=final[20]*0.1250
+    print("min #ras to #cas delay time= "+str(mincasdelay)+"ns") 
+
 
 def readmincasdelay(final):
     mincasdelay=final[16]*0.1250
@@ -288,9 +292,9 @@ def main():
     parser.add_argument("--dimmaddress",
                         help="set dimm address( 0x50 0x51 0x52 0x53 0x54 0x55 )")
     parser.add_argument("--writetckmin",
-                        help="set min cycle time tckmin  byte 12 in ns example: --writetckmin 10ns")
+                        help="set min cycle time tckmin byte 12 in ns example: --writetckmin 10ns")
     parser.add_argument("--writetckminoffset",
-                        help="set min cycle time tckmin  offset byte 34 in ns exaple: --writetckminoffset -54")                        
+                        help="set min cycle time tckmin offset byte 34 in ns exaple: --writetckminoffset -54")                        
     parser.add_argument("--writecas",
                         help="set enabled CAS latencies in bytes 14 and 15 These bytes define which CAS Latency (CL) values are supported. The range is from CL = 4 through CL = 18 with one bit per possible CAS Latency. A 1 in a bit position means that CL is supported, a 0 in that bit position means it is not supported. Since CL = 6 is required for all DDR3 speed bins, bit 2 of SPD byte 14 is always 1.")
     parser.add_argument("--writetofile",
@@ -356,6 +360,7 @@ def main():
     showpartnumber(final)
     showCASenabled(final)
 
+    readminrascasdelay(final)
 
     readtckmin(final)
     
