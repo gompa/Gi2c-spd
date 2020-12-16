@@ -88,11 +88,9 @@ def spdcrc(final):
     crcbyte124=int(crc[:4],16)
     final[123]=crcbyte123
     final[124]=crcbyte124
-    
     return(final)
 
 def writecas(final,args):
-        
         caswant=args.replace("cl","").split(" ")
         caswant=[int(x) for x in caswant if x]
         if VERBOSE:
@@ -124,8 +122,6 @@ def writecas(final,args):
         final[14]=int("0b"+casstring[:8][::-1],2)
         final[15]=int("0b"+casstring[8:][::-1],2)
         return(final)
-     
-                   
                
 def readminrascasdelay(final):
     mincasdelay=final[20]*0.1250
@@ -152,7 +148,6 @@ def readtckmin(final):
         print("----tck raw----")
         print(padhex(tckmin))
         print(padhex(tckminoffset))
-
     if hex(tckmin) == "0x14":
         print("DDR3-800 clockspeed=400mhz")
         print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
@@ -172,7 +167,6 @@ def readtckmin(final):
         print("DDR3-2133 clockspeed=1067mhz")    
         print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
     
-
 def writetckmin(final, args , offset=0):
     if offset==None:
         offset=0
@@ -280,13 +274,11 @@ def writebus(busaddr=0,address=0x50,data=[]):
                     bus.pec = 1
                     time.sleep(0.2)
                     # Write a block of flashblock size  bytes to address from offset 
-                    #bus.write_i2c_block_data(address, offset, curdata)
+                    bus.write_i2c_block_data(address, offset, curdata)
                     #time.sleep(0.2)
                     
                     offset=offset+flashblocksize
                   
-
-
 def main():
     '''
     Main program function
@@ -367,10 +359,9 @@ def main():
         #read from bus and store in final
         final=readbus(busaddress, dimmaddress)
 
+    #print operations
     #read original crc
-    
     printcurrentcrc(final)
-	#show info
     showpartnumber(final)
     showCASenabled(final)
 
@@ -380,12 +371,7 @@ def main():
     
     readmincasdelay(final)
     
-    
-    #print("RAS# to CAS#  delay time =  "+str(final[18])+"MBT")
-    #print(hex(final[18]))
-    #print("min row precharge delay time trpmin =  "+str(final[20])+"MBT")
-#    print( hex(binascii.crc_hqx(bytes.fromhex(" ".join(final[:116]))),0))
-    #print(final)
+    #write operations
     if "write" in str(args):
         print("-----after edit -----")
     

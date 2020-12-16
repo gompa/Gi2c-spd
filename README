@@ -50,6 +50,7 @@ example: python3 MEM.py --writecas cl4 cl5 cl6 cl16
 
 
 --write
+DANGER THIS WRITES YOUR SPD AND CAN RESULT IN A NON WORKING COMPUTER
 enable global write without this enabled its does a dry-run
 
 
@@ -65,7 +66,10 @@ Faq:
 why does Gi2c not support ddr4:
 i dont have ddr4 hardware to test it
 
-
+i bricked my ram/computer what now:
+try your dim in a different computer with a other dimm installed, or try setting memory timings manual on 1 stick and reboot with both sticks
+get solder an arduino to the spd lines and read the spd data 
+if you are all out of options you can try hotplugging your memory after boot to flash the spd (this is all kinds of bad and should only be used as a last resort)
 
 
 
