@@ -48,7 +48,7 @@ def _initial(c):
         else:
             crc = crc << 1
         c = c << 1
-    return crc
+    return(crc)
 
 _tab = [ _initial(i) for i in range(256) ]
 
@@ -57,20 +57,19 @@ def _update_crc(crc, c):
     tmp = (crc >> 8) ^ cc
     crc = (crc << 8) ^ _tab[tmp & 0xff]
     crc = crc & 0xffff
-    return crc
+    return(crc)
 
 def crc(str):
     crc = PRESET
     for c in str:
         crc = _update_crc(crc, ord(c))
-    return crc
+    return(crc)
 
 def crcb(i):
     crc = PRESET
     for c in i:
-        #print(c)
         crc = _update_crc(crc, c)
-    return crc
+    return(crc)
 
 def printcurrentcrc(final):
     print("Current CRC="+padhex(final[124]) + padhex(final[123])[2:] )
@@ -115,7 +114,6 @@ def writecas(final,args):
                 casstring=casstring+"1"
             else:
                 casstring=casstring+"0"
-            #print(casstring)
             cascount=cascount+1
         if VERBOSE:            
             print("casstirng"+casstring)
@@ -123,10 +121,8 @@ def writecas(final,args):
             print("cashigh byte="+casstring[8:][::-1])
             print("cashigh byte int="+ str(hex(int("0b"+casstring[8:][::-1],2))))
             print("caslow byte int="+ str(hex(int("0b"+casstring[:8][::-1],2))))
-        #print(final)
         final[14]=int("0b"+casstring[:8][::-1],2)
         final[15]=int("0b"+casstring[8:][::-1],2)
-        # ~ print(final)
         return(final)
      
                    
@@ -135,14 +131,11 @@ def writecas(final,args):
 def readmincasdelay(final):
     mincasdelay=final[16]*0.1250
     print("min cas latency= "+str(mincasdelay)+"ns") 
-    #print()
 
 
 def readtckmin(final):
-    #print('-------readtckmin-----')
     tckmin=final[12]
     tckminoffset=final[34]
-    #print(tckminoffset)
     if VERBOSE:
         print("----tck raw----")
         print(padhex(tckmin))
@@ -166,9 +159,6 @@ def readtckmin(final):
     if hex(tckmin) == "0x8" and hex(tckminoffset) == "0xC2":
         print("DDR3-2133 clockspeed=1067mhz")    
         print("tckmin: " + str(tckmin * 0.1250 + tckminoffset) +"ns")
-
-    #print("min cycle time tckmin= "+str(final[12])+"ns")
-    #print(hex(final[12]))
     
 
 def writetckmin(final, args , offset=0):
@@ -202,19 +192,13 @@ def writetckmin(final, args , offset=0):
     return(final)
 
 def showCASenabled(final):
-    # ~ print(bincashigh)
     bincaslow=format(final[14], '#010b')
     bincashigh=format(final[15], '#010b')
-    # ~ print(bincaslow)
-    #print(bincashigh)
-    # ~ print(hex(final[14]))
-    # ~ print(hex(final[15]))
     totalenabled=""
     count=0
     offset=4
     print("cas latencys enabled:")
     for cl in reversed(bincaslow[2:]):
-        #print("cl"+str(count)+"="+cl)
         if count == 7:
             totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl+"\n"
         else:
@@ -226,10 +210,7 @@ def showCASenabled(final):
                 totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl+"\n"
             else:
                 totalenabled= totalenabled+ " "+"cl"+str(count+offset)+"="+cl
-            #print("cl"+str(count)+"="+cl)
-            #totalenabled= totalenabled+ " "+"cl"+str(count)+"="+cl
         count=count+1
-    #print(count)
     print(totalenabled)
     
     
@@ -243,8 +224,6 @@ def readbus(busaddr=0,address=0x50):
                 bus.pec = 1
                 # Read a block of 16 bytes from address 80, offset 0
                 block = bus.read_i2c_block_data(address, offset, 32)
-                #print(block)
-                #block ='0x' + block[2:].zfill(2)
                 # Returned value is a list of 32 bytes
                 data.extend(block)
                 offset=offset+32
@@ -304,24 +283,24 @@ def main():
     global READFROMFILE
     # Define registers values from datasheet
     parser = argparse.ArgumentParser()
-    parser.add_argument("--writetckmin",
-                        help="set min cycle time tckmin  byte 12 in ns example: --writetckmin 100ns")
     parser.add_argument("--busaddress",
                         help="set i2c bus address ( 0 most of the time)")
     parser.add_argument("--dimmaddress",
                         help="set dimm address( 0x50 0x51 0x52 0x53 0x54 0x55 )")
+    parser.add_argument("--writetckmin",
+                        help="set min cycle time tckmin  byte 12 in ns example: --writetckmin 10ns")
     parser.add_argument("--writetckminoffset",
                         help="set min cycle time tckmin  offset byte 34 in ns exaple: --writetckminoffset -54")                        
     parser.add_argument("--writecas",
                         help="set enabled CAS latencies in bytes 14 and 15 These bytes define which CAS Latency (CL) values are supported. The range is from CL = 4 through CL = 18 with one bit per possible CAS Latency. A 1 in a bit position means that CL is supported, a 0 in that bit position means it is not supported. Since CL = 6 is required for all DDR3 speed bins, bit 2 of SPD byte 14 is always 1.")
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="increase output verbosity")
-    parser.add_argument("-w", "--write",action="store_true",
-                        help="enable write")
     parser.add_argument("--writetofile",
                         help="write spd to filename")
     parser.add_argument("--readfromfile",
                         help="Read spd from filename")                        
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="increase output verbosity")
+    parser.add_argument("-w", "--write",action="store_true",
+                        help="enable write")
     args = parser.parse_args()
     
     
